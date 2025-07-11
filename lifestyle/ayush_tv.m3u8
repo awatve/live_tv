@@ -1,0 +1,4 @@
+#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-STREAM-INF:BANDWIDTH=1039161,FRAME-RATE=25,RESOLUTION=640x360,CODECS="avc1.77.30,mp4a.40.2"
+https://95eryw39dwn4-hls-live.wmncdn.net/Ayushu/271ddf829afeece44d8732757fba1a66.sdp/chunks.m3u8
