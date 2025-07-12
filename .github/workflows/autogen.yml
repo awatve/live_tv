@@ -23,22 +23,23 @@ jobs:
       - name: Run Generator Script
         run: python generate.py
 
-      - name: Commit and push each .m3u8 file separately
+      - name: Commit and Push each m3u8 file with commit message as just the filename
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          git fetch origin
+          # Make sure local main matches remote to avoid push conflicts
+          git fetch origin main
           git reset --hard origin/main
 
-          # Loop through all .m3u8 files generated
+          # Loop over all .m3u8 files and commit individually with filename as commit message
           for file in *.m3u8; do
-            # Check if file exists and has changes
-            if git status --porcelain | grep -q "$file"; then
-              git add "$file"
+            git add "$file"
+            # Check if staged file has changes
+            if ! git diff --cached --quiet -- "$file"; then
               git commit -m "$file"
-              git push
-            else
-              echo "No changes in $file"
             fi
           done
+
+          # Push commits
+          git push origin main
