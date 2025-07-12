@@ -12,41 +12,33 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout full repo history
+      - name: Checkout Repo
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.x"
 
-      - name: Configure Git
+      - name: Run Generator Script
+        run: python generate.py
+
+      - name: Commit and push each .m3u8 file separately
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Pull latest from remote main
-        run: |
           git fetch origin
           git reset --hard origin/main
 
-      - name: Run Generator Script
-        run: python generate.py
-
-      - name: Commit and Push Zee Channels Only
-        run: |
-          shopt -s nullglob
-          zee_files=(zee_*.m3u8)
-          if [ ${#zee_files[@]} -eq 0 ]; then
-            echo "No Zee channel files to commit."
-            exit 0
-          fi
-          
-          git add "${zee_files[@]}"
-          for file in "${zee_files[@]}"; do
-            if git diff --cached --quiet "$file"; then continue; fi
-            git commit "$file" -m "$file"
+          # Loop through all .m3u8 files generated
+          for file in *.m3u8; do
+            # Check if file exists and has changes
+            if git status --porcelain | grep -q "$file"; then
+              git add "$file"
+              git commit -m "$file"
+              git push
+            else
+              echo "No changes in $file"
+            fi
           done
-          git push origin main
