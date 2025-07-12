@@ -12,10 +12,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo with full history
+      - name: Checkout with full history
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Important for git reset
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -27,25 +27,23 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Sync with remote
+      - name: Sync with remote to avoid push rejection
         run: |
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git fetch origin main
-          git checkout main
           git reset --hard origin/main
 
-      - name: Run generate.py
+      - name: Run generator
         run: python generate.py
 
-      - name: Commit and push m3u8 files
+      - name: Commit and Push new m3u8 files
         run: |
-          changes=$(git status --porcelain *.m3u8 | wc -l)
-          if [ "$changes" -gt 0 ]; then
+          git add *.m3u8
+          if git diff --cached --quiet; then
+            echo "No .m3u8 file changes to commit"
+          else
             for file in *.m3u8; do
-              if git diff --quiet "$file"; then continue; fi
-              git add "$file"
-              git commit -m "$file"
+              if git diff --cached --quiet "$file"; then continue; fi
+              git commit "$file" -m "$file"
             done
             git push origin main
-          else
-            echo "No .m3u8 changes to commit"
+          fi
