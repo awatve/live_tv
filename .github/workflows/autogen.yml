@@ -15,7 +15,7 @@ jobs:
       - name: Checkout full repo history
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Needed to pull/push correctly
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -27,7 +27,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Pull latest changes from main
+      - name: Pull latest from remote main
         run: |
           git fetch origin
           git reset --hard origin/main
@@ -35,15 +35,18 @@ jobs:
       - name: Run Generator Script
         run: python generate.py
 
-      - name: Commit and Push .m3u8 Files
+      - name: Commit and Push Zee Channels Only
         run: |
-          git add *.m3u8
-          if git diff --cached --quiet; then
-            echo "No changes to commit."
-          else
-            for file in *.m3u8; do
-              if git diff --cached --quiet "$file"; then continue; fi
-              git commit "$file" -m "$file"
-            done
-            git push origin main
+          shopt -s nullglob
+          zee_files=(zee_*.m3u8)
+          if [ ${#zee_files[@]} -eq 0 ]; then
+            echo "No Zee channel files to commit."
+            exit 0
           fi
+          
+          git add "${zee_files[@]}"
+          for file in "${zee_files[@]}"; do
+            if git diff --cached --quiet "$file"; then continue; fi
+            git commit "$file" -m "$file"
+          done
+          git push origin main
