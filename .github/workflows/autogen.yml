@@ -23,10 +23,20 @@ jobs:
       - name: Run Generator Script
         run: python generate.py
 
-      - name: Commit and Push
+      - name: Configure Git
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add *.m3u8
-          git commit -m "Auto-generate .m3u8 files from channels.json" || echo "No changes to commit"
-          git push
+
+      - name: Fetch and Reset to Latest Main
+        run: |
+          git fetch origin main
+          git reset --hard origin/main
+
+      - name: Commit and Push Each .m3u8 File Individually
+        run: |
+          for file in *.m3u8; do
+            git add "$file"
+            git commit -m "$file" || echo "$file has no changes"
+          done
+          git push origin main
