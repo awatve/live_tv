@@ -12,12 +12,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repo
+      - name: Checkout repo
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Make sure you have the full history
+          fetch-depth: 0
 
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.x"
@@ -27,16 +27,17 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Sync with origin/main
+      - name: Fetch latest main branch and reset
         run: |
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git fetch origin main
           git checkout main
           git reset --hard origin/main
 
-      - name: Run Generator Script
+      - name: Run generate.py
         run: python generate.py
 
-      - name: Commit and Push Each .m3u8 File Individually
+      - name: Commit and push .m3u8 files (one per commit)
         run: |
           changed=false
           for file in *.m3u8; do
@@ -47,8 +48,4 @@ jobs:
             fi
           done
 
-          if [ "$changed" = true ]; then
-            git push origin main
-          else
-            echo "No .m3u8 file changes to push."
-          fi
+          if [ "$changed"]()
