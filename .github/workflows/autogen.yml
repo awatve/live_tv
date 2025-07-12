@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # IMPORTANT: Needed for full history and pushing
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -28,15 +30,23 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Fetch and Reset to Latest Main
+      - name: Fetch and Reset to Origin/Main
         run: |
           git fetch origin main
           git reset --hard origin/main
 
-      - name: Commit and Push Each .m3u8 File Individually
+      - name: Commit Each New m3u8 File Individually
         run: |
+          changed=false
           for file in *.m3u8; do
             git add "$file"
-            git commit -m "$file" || echo "$file has no changes"
+            git diff --cached --quiet "$file" || (
+              git commit -m "$file"
+              changed=true
+            )
           done
-          git push origin main
+          if [ "$changed" = true ]; then
+            git push origin main
+          else
+            echo "No .m3u8 files changed."
+          fi
