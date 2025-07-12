@@ -12,12 +12,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout with full history
+      - name: Checkout full repo history
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Needed to pull/push correctly
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.x"
@@ -27,19 +27,19 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Sync with remote to avoid push rejection
+      - name: Pull latest changes from main
         run: |
-          git fetch origin main
+          git fetch origin
           git reset --hard origin/main
 
-      - name: Run generator
+      - name: Run Generator Script
         run: python generate.py
 
-      - name: Commit and Push new m3u8 files
+      - name: Commit and Push .m3u8 Files
         run: |
           git add *.m3u8
           if git diff --cached --quiet; then
-            echo "No .m3u8 file changes to commit"
+            echo "No changes to commit."
           else
             for file in *.m3u8; do
               if git diff --cached --quiet "$file"; then continue; fi
