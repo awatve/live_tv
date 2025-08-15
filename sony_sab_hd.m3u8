@@ -1,7 +1,10 @@
 #EXTM3U
 #EXT-X-VERSION:3
-#EXT-X-INDEPENDENT-SEGMENTS
-
-#EXT-X-STREAM-INF:BANDWIDTH=208208,AVERAGE-BANDWIDTH=189200,CODECS="avc1.42c00c,mp4a.40.2",FRAME-RATE=25.000
-
-
+#EXT-X-TARGETDURATION:10
+#EXT-X-MEDIA-SEQUENCE:3500
+#EXTINF:10.0,
+https://cors-proxy.cooks.fyi/https://tataplay.slivcdn.com/hls/live/2011749/SABHD/master_3500_00001.ts
+#EXTINF:10.0,
+https://cors-proxy.cooks.fyi/https://tataplay.slivcdn.com/hls/live/2011749/SABHD/master_3500_00002.ts
+#EXTINF:10.0,
+https://cors-proxy.cooks.fyi/https://tataplay.slivcdn.com/hls/live/2011749/SABHD/master_3500_00003.ts
